@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-Sample T-Test Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        p {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>One-Sample T-Test Calculator</h1>
+    <form id="oneSampleTTestForm">
+        <label for="sampleValues">Enter sample values (comma-separated):</label>
+        <input type="text" id="sampleValues" required />
+        <br>
+        <label for="populationMean">Enter population mean:</label>
+        <input type="number" id="populationMean" required />
+        <br>
+        <button type="button" onclick="performOneSampleTTest()">Perform One-Sample T-Test</button>
+        <br>
+        <p id="tTestOutput"></p>
+        <p id="DFOutput"></p>
+    </form>
+
+    <script>
+        // Function to perform one-sample t-test
+        function performOneSampleTTest() {
+            const sampleValuesInput = document.getElementById('sampleValues').value;
+            const populationMeanInput = parseFloat(document.getElementById('populationMean').value);
+
+            if (!sampleValuesInput || isNaN(populationMeanInput)) {
+                alert('Please enter valid values for sample and population mean.');
+                return;
+            }
+
+            const sampleValues = sampleValuesInput.split(',').map(value => parseFloat(value.trim()));
+
+            if (sampleValues.some(isNaN)) {
+                alert('Please enter valid numeric values for the sample.');
+                return;
+            }
+
+            const sampleMean = sampleValues.reduce((sum, value) => sum + value, 0) / sampleValues.length;
+            const sampleSize = sampleValues.length;
+            const sampleStandardDeviation = Math.sqrt(sampleValues.reduce((sum, value) => sum + Math.pow(value - sampleMean, 2), 0) / (sampleSize - 1));
+
+            const tStatistic = (sampleMean - populationMeanInput) / (sampleStandardDeviation / Math.sqrt(sampleSize));
+            const degreesOfFreedom = sampleSize - 1;
+            document.getElementById('tTestOutput').innerText = `t-Statistic: ${tStatistic.toFixed(2)}`;
+            document.getElementById('DFOutput').innerText = `Degrees of Freedom: ${degreesOfFreedom}`;
+            
+            // const degreesOfFreedom = sampleSize - 1;
+
+            // const tCriticalValue = 2.262; // For a two-tailed test with 95% confidence and 9 degrees of freedom
+
+            // let result = '';
+
+            // if (Math.abs(tStatistic) > tCriticalValue) {
+            //     result = 'Reject the null hypothesis. There is a significant difference.';
+            // } else {
+            //     result = 'Fail to reject the null hypothesis. There is no significant difference.';
+            // }
+
+            // document.getElementById('tTestOutput').innerText = `t-Statistic: ${tStatistic.toFixed(2)}, Degrees of Freedom: ${degreesOfFreedom}, Result: ${result}`;
+        }
+    </script>
+</body>
+</html>

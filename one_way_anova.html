@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-Way ANOVA Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        p {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>One-Way ANOVA Calculator</h1>
+    <form id="anovaForm">
+        <label for="group1Values">Enter values for Group 1 (comma-separated):</label>
+        <input type="text" id="group1Values" required />
+        <br>
+        <label for="group2Values">Enter values for Group 2 (comma-separated):</label>
+        <input type="text" id="group2Values" required />
+        <br>
+        <label for="group3Values">Enter values for Group 3 (comma-separated):</label>
+        <input type="text" id="group3Values" required />
+        <br>
+        <button type="button" onclick="performOneWayAnova()">Perform One-Way ANOVA</button>
+        <br>
+        <p id="anovaOutput"></p>
+    </form>
+
+    <script>
+        // Function to perform one-way ANOVA
+        function performOneWayAnova() {
+            const group1ValuesInput = document.getElementById('group1Values').value;
+            const group2ValuesInput = document.getElementById('group2Values').value;
+            const group3ValuesInput = document.getElementById('group3Values').value;
+
+            if (!group1ValuesInput || !group2ValuesInput || !group3ValuesInput) {
+                alert('Please enter values for all three groups.');
+                return;
+            }
+
+            const group1Values = group1ValuesInput.split(',').map(value => parseFloat(value.trim()));
+            const group2Values = group2ValuesInput.split(',').map(value => parseFloat(value.trim()));
+            const group3Values = group3ValuesInput.split(',').map(value => parseFloat(value.trim()));
+
+            if (group1Values.some(isNaN) || group2Values.some(isNaN) || group3Values.some(isNaN)) {
+                alert('Please enter valid numeric values for all three groups.');
+                return;
+            }
+
+            const group1Mean = calculateMean(group1Values);
+            const group2Mean = calculateMean(group2Values);
+            const group3Mean = calculateMean(group3Values);
+
+            const group1Var = calculateVariance(group1Values, group1Mean);
+            const group2Var = calculateVariance(group2Values, group2Mean);
+            const group3Var = calculateVariance(group3Values, group3Mean);
+
+            const overallMean = (group1Mean + group2Mean + group3Mean) / 3;
+
+            const numerator = (group1Values.length - 1) * Math.pow(group1Mean - overallMean, 2) +
+                              (group2Values.length - 1) * Math.pow(group2Mean - overallMean, 2) +
+                              (group3Values.length - 1) * Math.pow(group3Mean - overallMean, 2);
+
+            const denominator = group1Values.length + group2Values.length + group3Values.length - 3;
+
+            const msBetween = numerator / denominator;
+
+            const fStatistic = msBetween / calculatePooledVariance([group1Var, group2Var, group3Var], [group1Values.length, group2Values.length, group3Values.length]);
+
+            const dfBetween = 2; // Number of groups minus 1
+            const dfWithin = group1Values.length + group2Values.length + group3Values.length - 3; // Total number of observations minus number of groups
+
+            let result = '';
+
+            document.getElementById('anovaOutput').innerText = `Degrees of Freedom (Between): ${dfBetween}, Degrees of Freedom (Within): ${dfWithin}, F-Statistic: ${fStatistic.toFixed(2)}, Result: ${result}`;
+        }
+
+        // Function to calculate the mean
+        function calculateMean(data) {
+            const sum = data.reduce((acc, value) => acc + value, 0);
+            return sum / data.length;
+        }
+
+        // Function to calculate the variance
+        function calculateVariance(data, mean) {
+            return data.reduce((acc, value) => acc + Math.pow(value - mean, 2), 0) / (data.length - 1);
+        }
+
+        // Function to calculate the pooled variance
+        function calculatePooledVariance(groupVariances, groupSizes) {
+            const weights = groupSizes.map(size => size - 1);
+            const totalWeight = weights.reduce((acc, weight) => acc + weight, 0);
+            return groupVariances.reduce((acc, variance, i) => acc + (weights[i] / totalWeight) * variance, 0);
+        }
+    </script>
+</body>
+</html>

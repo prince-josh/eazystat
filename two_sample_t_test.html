@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EazyStat - Two sample t_test</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        p {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Two-Sample T-Test Calculator</h1>
+    <form id="twoSampleTTestForm">
+        <label for="sample1Values">Enter values for Sample 1 (comma-separated):</label>
+        <input type="text" id="sample1Values" required />
+        <br>
+        <label for="sample2Values">Enter values for Sample 2 (comma-separated):</label>
+        <input type="text" id="sample2Values" required />
+        <br>
+        <button type="button" onclick="performTwoSampleTTest()">Perform Two-Sample T-Test</button>
+        <br>
+        <p id="tTestOutputdf"></p>
+        <p id="tTestOutput"></p>
+    </form>
+
+    <script>
+        // Function to perform two-sample t-test
+        function performTwoSampleTTest() {
+            const sample1ValuesInput = document.getElementById('sample1Values').value;
+            const sample2ValuesInput = document.getElementById('sample2Values').value;
+
+            if (!sample1ValuesInput || !sample2ValuesInput) {
+                alert('Please enter values for both Sample 1 and Sample 2.');
+                return;
+            }
+
+            const sample1Values = sample1ValuesInput.split(',').map(value => parseFloat(value.trim()));
+            const sample2Values = sample2ValuesInput.split(',').map(value => parseFloat(value.trim()));
+
+            if (sample1Values.some(isNaN) || sample2Values.some(isNaN)) {
+                alert('Please enter valid numeric values for both samples.');
+                return;
+            }
+
+            const sample1Size = sample1Values.length;
+            const sample2Size = sample2Values.length;
+
+            const sample1Mean = sample1Values.reduce((sum, value) => sum + value, 0) / sample1Size;
+            const sample2Mean = sample2Values.reduce((sum, value) => sum + value, 0) / sample2Size;
+
+            const sample1Variance = sample1Values.reduce((sum, value) => sum + Math.pow(value - sample1Mean, 2), 0) / (sample1Size - 1);
+            const sample2Variance = sample2Values.reduce((sum, value) => sum + Math.pow(value - sample2Mean, 2), 0) / (sample2Size - 1);
+
+            const pooledVariance = ((sample1Size - 1) * sample1Variance + (sample2Size - 1) * sample2Variance) / (sample1Size + sample2Size - 2);
+
+            const standardError = Math.sqrt((pooledVariance / sample1Size) + (pooledVariance / sample2Size));
+
+            const degreesOfFreedom = sample1Size + sample2Size - 2;
+
+            const tStatistic = (sample1Mean - sample2Mean) / standardError;
+
+            document.getElementById('tTestOutputdf').innerText = `Degrees of Freedom: ${degreesOfFreedom}`;
+            document.getElementById('tTestOutput').innerText = `t-Statistic: ${tStatistic.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descriptive Statistics Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        p {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Descriptive Statistics Calculator</h1>
+    <form id="descriptiveStatsForm">
+        <label for="dataValues">Enter numerical values (comma-separated):</label>
+        <input type="text" id="dataValues" required />
+        <br>
+        <button type="button" onclick="calculateDescriptiveStats()">Calculate Descriptive Statistics</button>
+        <br>
+        <p>
+            <span id="meanOutput"></span>
+            <span id="medianOutput"></span>
+        </p>
+        <p id="modeOutput"></p>
+        <P>
+            <span id="rangeOutput"></span>
+            <span id="SDOutput"></span>
+        </P>
+    </form>
+
+    <script>
+        // Function to calculate descriptive statistics
+        function calculateDescriptiveStats() {
+            const dataValuesInput = document.getElementById('dataValues').value;
+
+            if (!dataValuesInput) {
+                alert('Please enter numerical values.');
+                return;
+            }
+
+            const dataValues = dataValuesInput.split(',').map(value => parseFloat(value.trim()));
+
+            if (dataValues.some(isNaN)) {
+                alert('Please enter valid numeric values.');
+                return;
+            }
+
+            const mean = calculateMean(dataValues);
+            const median = calculateMedian(dataValues);
+            const mode = calculateMode(dataValues);
+            const range = calculateRange(dataValues);
+            const standardDeviation = calculateStandardDeviation(dataValues);
+
+            // const outputMessage = `, Median: ${median}, Mode: ${mode}, Range: ${range}, Standard Deviation: ${standardDeviation.toFixed(2)}`;
+
+            document.getElementById('meanOutput').innerText = `Mean: ${mean.toFixed(2)}, `;
+            document.getElementById('medianOutput').innerText = `Median: ${median}`;
+            document.getElementById('modeOutput').innerText = `Mode: ${mode}`;
+            document.getElementById('rangeOutput').innerText = `Range: ${range}, `;
+            document.getElementById('SDOutput').innerText = `Standard Deviation: ${standardDeviation.toFixed(2)}`;
+        }
+
+        // Function to calculate the mean
+        function calculateMean(data) {
+            const sum = data.reduce((acc, value) => acc + value, 0);
+            return sum / data.length;
+        }
+
+        // Function to calculate the median
+        function calculateMedian(data) {
+            const sortedData = [...data].sort((a, b) => a - b);
+            const mid = Math.floor(sortedData.length / 2);
+
+            if (sortedData.length % 2 === 0) {
+                return (sortedData[mid - 1] + sortedData[mid]) / 2;
+            } else {
+                return sortedData[mid];
+            }
+        }
+
+        // Function to calculate the mode
+        function calculateMode(data) {
+            const frequencyMap = new Map();
+
+            data.forEach(value => {
+                frequencyMap.set(value, (frequencyMap.get(value) || 0) + 1);
+            });
+
+            let mode = [];
+            let maxFrequency = 0;
+
+            frequencyMap.forEach((frequency, value) => {
+                if (frequency > maxFrequency) {
+                    mode = [value];
+                    maxFrequency = frequency;
+                } else if (frequency === maxFrequency) {
+                    mode.push(value);
+                }
+            });
+
+            return mode.join(', ');
+        }
+
+        // Function to calculate the range
+        function calculateRange(data) {
+            const max = Math.max(...data);
+            const min = Math.min(...data);
+            return max - min;
+        }
+
+        // Function to calculate the standard deviation
+        function calculateStandardDeviation(data) {
+            const mean = calculateMean(data);
+            const squaredDifferences = data.map(value => Math.pow(value - mean, 2));
+            const variance = squaredDifferences.reduce((acc, value) => acc + value, 0) / data.length;
+            return Math.sqrt(variance);
+        }
+    </script>
+</body>
+</html>

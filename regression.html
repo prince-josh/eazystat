@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #f9f9f9;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>Linear Regression App</h1>
+    <form id="regressionForm">
+        <label for="xInput">Enter X values (comma-separated):</label>
+        <input type="text" id="xInput" required />
+        <br>
+        <label for="yInput">Enter Y values (comma-separated):</label>
+        <input type="text" id="yInput" required />
+        <br>
+        <button type="button" onclick="addDataPoint()">Add Data Point</button>
+        <br>
+        <label>Data Points:</label>
+        <ul id="dataPoints"></ul>
+        <br>
+        <label for="predictXInput">Enter X value for prediction:</label>
+        <input type="number" id="predictXInput" required />
+        <br>
+        <button type="button" onclick="predict()">Predict Y</button>
+    </form>
+    <p id="output"></p>
+
+    <script>
+        let dataset = [];
+
+        // Function to calculate the slope and y-intercept
+        function calculateRegressionParams(data) {
+            const n = data.length;
+            let sumX = 0;
+            let sumY = 0;
+            let sumXY = 0;
+            let sumX2 = 0;
+
+            for (let i = 0; i < n; i++) {
+                sumX += data[i][0];
+                sumY += data[i][1];
+                sumXY += data[i][0] * data[i][1];
+                sumX2 += data[i][0] * data[i][0];
+            }
+
+            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+
+            return { slope, intercept };
+        }
+
+        // add a data point to the dataset
+        function addDataPoint() {
+            const xInput = document.getElementById('xInput').value;
+            const yInput = document.getElementById('yInput').value;
+
+            if (!xInput || !yInput) {
+                alert('Please enter valid values for X and Y.');
+                return;
+            }
+
+            const xValues = xInput.split(',').map(value => parseFloat(value.trim()));
+            const yValues = yInput.split(',').map(value => parseFloat(value.trim()));
+
+            if (xValues.some(isNaN) || yValues.some(isNaN) || xValues.length !== yValues.length) {
+                alert('Please enter valid numeric values for X and Y, separated by commas.');
+                return;
+            }
+
+            for (let i = 0; i < xValues.length; i++) {
+                dataset.push([xValues[i], yValues[i]]);
+
+                // Update the displayed data points
+                const dataPointsList = document.getElementById('dataPoints');
+                const listItem = document.createElement('li');
+                listItem.textContent = `X: ${xValues[i]}, Y: ${yValues[i]}`;
+                dataPointsList.appendChild(listItem);
+            }
+
+            alert(`Data point(s) added: X = ${xInput}, Y = ${yInput}`);
+
+            // Clear input fields
+            document.getElementById('xInput').value = '';
+            document.getElementById('yInput').value = '';
+        }
+
+        // Function to predict Y based on the calculated slope and y-intercept
+        function predict() {
+            const predictXValue = parseFloat(document.getElementById('predictXInput').value);
+
+            if (isNaN(predictXValue)) {
+                alert('Please enter a valid numeric value for the prediction.');
+                return;
+            }
+
+            const regression = calculateRegressionParams(dataset);
+            const prediction = regression.slope * predictXValue + regression.intercept;
+            document.getElementById('output').innerText = `Predicted Y value: ${prediction.toFixed(2)}`;
+        }
+
+        // Attach the predict function to the form button
+        document.getElementById('regressionForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            predict();
+        });
+    </script>
+</body>
+
+</html>

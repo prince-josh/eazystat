@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correlation Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        p {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Correlation Calculator</h1>
+    <form id="correlationForm">
+        <label for="xInput">Enter X values (comma-separated):</label>
+        <input type="text" id="xInput" required />
+        <br>
+        <label for="yInput">Enter Y values (comma-separated):</label>
+        <input type="text" id="yInput" required />
+        <br>
+        <!-- <button type="button" onclick="calculateCorrelation()">Calculate Correlation</button> -->
+        <button type="button" onclick="calculateCorrelation()">Calculate Correlation</button>
+
+        <br>
+        <p id="correlationOutput"></p>
+    </form>
+
+    <script>
+        // Function to calculate the Pearson correlation coefficient
+        function calculateCorrelations(xValues, yValues) {
+            const n = xValues.length;
+
+            // Calculate mean for x and y
+            const meanX = xValues.reduce((sum, value) => sum + value, 0) / n;
+            const meanY = yValues.reduce((sum, value) => sum + value, 0) / n;
+
+            // Calculate the numerator and denominators for Pearson correlation coefficient
+            let numerator = 0;
+            let denomX = 0;
+            let denomY = 0;
+
+            for (let i = 0; i < n; i++) {
+                const diffX = xValues[i] - meanX;
+                const diffY = yValues[i] - meanY;
+
+                numerator += diffX * diffY;
+                denomX += diffX ** 2;
+                denomY += diffY ** 2;
+            }
+
+            const correlation = numerator / Math.sqrt(denomX * denomY);
+
+            return correlation;
+        }
+
+        // Function to handle correlation calculation
+        function calculateCorrelation() {
+            const xInput = document.getElementById('xInput').value;
+            const yInput = document.getElementById('yInput').value;
+
+            if (!xInput || !yInput) {
+                alert('Please enter valid values for X and Y.');
+                return;
+            }
+
+            const xValues = xInput.split(',').map(value => parseFloat(value.trim()));
+            const yValues = yInput.split(',').map(value => parseFloat(value.trim()));
+
+            if (xValues.length !== yValues.length) {
+                alert('Number of X and Y values must be the same.');
+                return;
+            }
+
+            const correlation = calculateCorrelations(xValues, yValues);
+
+            document.getElementById('correlationOutput').innerText = `Correlation: ${correlation.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
